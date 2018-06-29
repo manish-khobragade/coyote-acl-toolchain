@@ -52,6 +52,9 @@ function install_nodejs {
 function install_composer {
     npm install -g composer-cli@${COMPOSER_VERSION} @ampretia/composer-wallet-cloudant
 }
+function install_passport_github {
+    npm install -g passport-github
+}
 
 function install_jq {
     curl -o jq -L https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64

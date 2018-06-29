@@ -360,6 +360,7 @@ install_nodejs
 if [[ "${HAS_COMPOSER_CONTRACTS}" = "true" ]]
 then
     install_composer
+    install_passport_github
     provision_cloudant
     create_cloudant_database
     configure_composer_wallet
