@@ -1,0 +1,20 @@
+query FILTER_CUSTOMER_PARTICIPANT {
+  description: "Select all customers having balance more than $100."
+  statement:
+      SELECT org.acme.shipping.perishable.Customer
+          WHERE (accountBalance > 100)
+}
+
+query FILTER_TEMPERATURE_TRANSACTION {
+  description: "Select all temperature transactions having temperature more than a specific value."
+  statement:
+      SELECT org.acme.shipping.perishable.TemperatureReading
+          WHERE (centigrade > _$temperature)
+}
+
+query FILTER_SHIPMENT_ASSET {
+  description: "Select all shipments having a specific status."
+  statement:
+    SELECT org.acme.shipping.perishable.Shipment
+      WHERE (status == _$status )
+}

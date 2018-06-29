@@ -1,0 +1,50 @@
+/**
+ * Sample access control list.
+ */
+// rule Default {
+//     description: "Allow all participants access to all resources"
+//     participant: "ANY"
+//     operation: ALL
+//     resource: "org.acme.shipping.perishable.*"
+//     action: ALLOW
+// }
+
+// rule SystemACL {
+//   description:  "System ACL to permit all access"
+//   participant: "org.hyperledger.composer.system.Participant"
+//   operation: ALL
+//   resource: "org.hyperledger.composer.system.**"
+//   action: ALLOW
+// }
+rule R3_TradersSeeOwnHistoryOnly {
+  description: "Traders should be able to see the history of their own transactions only"
+  participant(t): "org.acme.shipping.perishable.Customer"
+  operation: READ
+  resource(v): "org.hyperledger.composer.system.HistorianRecord"
+  condition: (v.participantInvoking.getIdentifier() != t.getIdentifier())
+  action: DENY
+}
+
+rule R2_EnableTemperatureReadingForCustomer {
+    description: "Enable Customers to submit temperature reading  transactions"
+    participant: "org.acme.shipping.perishable.Customer"
+    operation: CREATE
+    resource: "org.acme.shipping.perishable.TemperatureReading"
+    action: ALLOW
+}
+
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
