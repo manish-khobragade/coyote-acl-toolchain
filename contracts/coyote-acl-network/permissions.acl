@@ -28,7 +28,7 @@ rule R3_TradersSeeOwnHistoryOnly {
 rule R2_EnableTemperatureReadingForCustomer {
     description: "Enable Customers to submit temperature reading  transactions"
     participant: "org.acme.shipping.perishable.Customer"
-    operation: CREATE
+    operation: READ,CREATE
     resource: "org.acme.shipping.perishable.TemperatureReading"
     action: ALLOW
 }

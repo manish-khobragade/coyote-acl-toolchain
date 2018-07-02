@@ -3,7 +3,7 @@
     "composer": "^0.15.0"
   },
   "name": "coyote-acl-network",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Shipping Perishable Goods Business Network",
   "networkImage": "https://github.com/makotogo/developerWorks/coyote-acl-network/networkimage.svg",
   "networkImageanimated": "https://github.com/makotogo/developerWorks/coyote-acl-network/networkimageanimated.svg",
