@@ -1,13 +1,13 @@
 /**
  * Sample access control list.
  */
-// rule Default {
-//     description: "Allow all participants access to all resources"
-//     participant: "ANY"
-//     operation: ALL
-//     resource: "org.acme.shipping.perishable.*"
-//     action: ALLOW
-// }
+rule Default {
+    description: "Allow all participants access to all resources"
+    participant: "ANY"
+    operation: ALL
+    resource: "org.acme.shipping.perishable.*"
+    action: ALLOW
+}
 
 rule SystemACL {
   description:  "System ACL to permit all access"
@@ -16,22 +16,22 @@ rule SystemACL {
   resource: "org.hyperledger.composer.system.**"
   action: ALLOW
 }
-rule R3_TradersSeeOwnHistoryOnly {
-  description: "Traders should be able to see the history of their own transactions only"
-  participant(t): "org.acme.shipping.perishable.Customer"
-  operation: READ
-  resource(v): "org.hyperledger.composer.system.HistorianRecord"
-  condition: (v.participantInvoking.getIdentifier() != t.getIdentifier())
-  action: DENY
-}
+// rule R3_TradersSeeOwnHistoryOnly {
+//   description: "Traders should be able to see the history of their own transactions only"
+//   participant(t): "org.acme.shipping.perishable.Customer"
+//   operation: READ
+//   resource(v): "org.hyperledger.composer.system.HistorianRecord"
+//   condition: (v.participantInvoking.getIdentifier() != t.getIdentifier())
+//   action: DENY
+// }
 
-rule R2_EnableTemperatureReadingForCustomer {
-    description: "Enable Customers to submit temperature reading  transactions"
-    participant: "org.acme.shipping.perishable.Customer"
-    operation: READ,CREATE
-    resource: "org.acme.shipping.perishable.TemperatureReading"
-    action: ALLOW
-}
+// rule R2_EnableTemperatureReadingForCustomer {
+//     description: "Enable Customers to submit temperature reading  transactions"
+//     participant: "org.acme.shipping.perishable.Customer"
+//     operation: READ,CREATE
+//     resource: "org.acme.shipping.perishable.TemperatureReading"
+//     action: ALLOW
+// }
 
 rule NetworkAdminUser {
     description: "Grant business network administrators full access to user resources"
