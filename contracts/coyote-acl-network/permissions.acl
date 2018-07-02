@@ -9,13 +9,13 @@
 //     action: ALLOW
 // }
 
-// rule SystemACL {
-//   description:  "System ACL to permit all access"
-//   participant: "org.hyperledger.composer.system.Participant"
-//   operation: ALL
-//   resource: "org.hyperledger.composer.system.**"
-//   action: ALLOW
-// }
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.Participant"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}
 rule R3_TradersSeeOwnHistoryOnly {
   description: "Traders should be able to see the history of their own transactions only"
   participant(t): "org.acme.shipping.perishable.Customer"
