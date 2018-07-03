@@ -1,13 +1,6 @@
 /**
  * Sample access control list.
  */
-// rule Default {
-//     description: "Allow all participants access to all resources"
-//     participant: "ANY"
-//     operation: ALL
-//     resource: "org.acme.shipping.perishable.*"
-//     action: ALLOW
-// }
 
 rule SystemACL {
   description:  "System ACL to permit all access"
@@ -16,29 +9,59 @@ rule SystemACL {
   resource: "org.hyperledger.composer.system.**"
   action: ALLOW
 }
-// rule R3_TradersSeeOwnHistoryOnly {
-//   description: "Traders should be able to see the history of their own transactions only"
-//   participant(t): "org.acme.shipping.perishable.Customer"
-//   operation: READ
-//   resource(v): "org.hyperledger.composer.system.HistorianRecord"
-//   condition: (v.participantInvoking.getIdentifier() != t.getIdentifier())
-//   action: DENY
-// }
 
-// rule R2_EnableTemperatureReadingForCustomer {
-//     description: "Enable Customers to submit temperature reading  transactions"
-//     participant: "org.acme.shipping.perishable.Customer"
-//     operation: READ,CREATE
-//     resource: "org.acme.shipping.perishable.TemperatureReading"
-//     action: ALLOW
-// }
-rule customerOpenAccess {
-    description: "Allow customer access to all resources"
-    participant: "org.acme.shipping.perishable.Customer"
-    operation: ALL
-    resource: "org.acme.shipping.perishable.*"
-    action: ALLOW
+rule ShipmentReadAccessToAll {
+ description: "All participants can read shipments"
+  participant: "ANY"
+  operation: READ
+  resource: "org.acme.shipping.perishable.Shipment"
+  action: ALLOW
 }
+
+rule Carrier_Profile {
+  description: "Carrier can read and update their own record only"
+  participant(t): "org.acme.shipping.perishable.Carrier"
+  operation: READ, UPDATE
+  resource(v): "org.acme.shipping.perishable.Carrier"
+  condition: (v.getIdentifier() == t.getIdentifier())
+  action: ALLOW
+}
+
+rule Customer_Profile_New {
+  description: "Customer can read and update their own record only"
+  participant(t): "org.acme.shipping.perishable.Customer"
+  operation: READ, UPDATE
+  resource(v): "org.acme.shipping.perishable.Customer"
+  condition: (v.getIdentifier() == t.getIdentifier())
+  action: ALLOW
+}
+
+
+
+rule ShipmentCreateAccessToCustomer {
+  description: "Customer only can create Shipment"
+  participant: "org.acme.shipping.perishable.Customer"
+  operation: CREATE, UPDATE
+  resource: "org.acme.shipping.perishable.Shipment"
+  action: ALLOW
+}
+
+rule ShipmentUpdateAccessToCarrier {
+  description: "Carrier can only do the Shipment Accepted"
+  participant: "org.acme.shipping.perishable.Carrier"
+  operation: UPDATE
+  resource: "org.acme.shipping.perishable.Shipment"
+  action: ALLOW
+}
+
+rule Shipment_Received {
+  description: "Carrier can only do the Shipment Accepted"
+  participant: "org.acme.shipping.perishable.Carrier"
+  operation: ALL
+  resource: "org.acme.shipping.perishable.ShipmentReceived"
+  action: ALLOW
+}
+
 rule NetworkAdminUser {
     description: "Grant business network administrators full access to user resources"
     participant: "org.hyperledger.composer.system.NetworkAdmin"
