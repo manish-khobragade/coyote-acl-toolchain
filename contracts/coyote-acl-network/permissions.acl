@@ -1,13 +1,13 @@
 /**
  * Sample access control list.
  */
-rule Default {
-    description: "Allow all participants access to all resources"
-    participant: "ANY"
-    operation: ALL
-    resource: "org.acme.shipping.perishable.*"
-    action: ALLOW
-}
+// rule Default {
+//     description: "Allow all participants access to all resources"
+//     participant: "ANY"
+//     operation: ALL
+//     resource: "org.acme.shipping.perishable.*"
+//     action: ALLOW
+// }
 
 rule SystemACL {
   description:  "System ACL to permit all access"
@@ -32,7 +32,13 @@ rule SystemACL {
 //     resource: "org.acme.shipping.perishable.TemperatureReading"
 //     action: ALLOW
 // }
-
+rule customerOpenAccess {
+    description: "Allow customer access to all resources"
+    participant: "org.acme.shipping.perishable.Customer"
+    operation: ALL
+    resource: "org.acme.shipping.perishable.*"
+    action: ALLOW
+}
 rule NetworkAdminUser {
     description: "Grant business network administrators full access to user resources"
     participant: "org.hyperledger.composer.system.NetworkAdmin"
