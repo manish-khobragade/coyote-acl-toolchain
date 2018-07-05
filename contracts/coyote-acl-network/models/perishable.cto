@@ -7,6 +7,7 @@
 
 namespace org.acme.shipping.perishable
 
+
 /**
  * The type of perishable product being shipped
  */
@@ -23,7 +24,8 @@ enum ProductType {
  */
 enum ShipmentStatus {
   o CREATED
-  o IN_TRANSIT
+  o ACCEPTED
+  o IN_TRANSIT  
   o ARRIVED
 }
 
@@ -68,9 +70,16 @@ transaction GpsReading extends ShipmentTransaction {
 /**
  * A notification that a shipment has been received by the
  * customer and that funds should be transferred from the customer
- * to the coyote and coyote to carrier to pay for the shipment.
+ * to the broker and broker to carrier to pay for the shipment.
  */
 transaction ShipmentReceived extends ShipmentTransaction {
+}
+
+/**
+ * A notification that a shipment has been accepted by the
+ * carrier 
+ */
+transaction ShipmentAccepted extends ShipmentTransaction {
 }
 
 /**
@@ -87,7 +96,7 @@ asset Shipment identified by shipmentId {
 }
 
 /**
- * Defines a contract between a Customer and Coyote to ship using
+ * Defines a contract between a Customer and Broker to ship using
  * a Carrier, paying a set unit price. The unit price is multiplied by
  * a penality factor proportional to the deviation from the min and max
  * negociated temperatures for the shipment.
@@ -96,9 +105,13 @@ asset Contract identified by contractId {
   o String contractId
   --> Customer customer
   --> Carrier carrier
-  --> Coyote coyote
+  --> Broker broker
+  --> Facility origin
+  --> Facility destination
+
   o DateTime arrivalDateTime
   o Double unitPrice
+  o Double brokerMargin
   o Double minTemperature
   o Double maxTemperature
   o Double minPenaltyFactor
@@ -106,9 +119,22 @@ asset Contract identified by contractId {
 }
 
 /**
+ * A concept for a simple street address
+ */
+concept Address {
+  o String city optional
+  o String country
+  o String street optional
+  o String zip optional
+  o String continent optional
+}
+
+/**
  * An abstract participant type in this business network
  */
 abstract participant Business identified by email {
+  o String name
+  o String code
   o String email
   o String address
   o Double accountBalance
@@ -127,15 +153,18 @@ participant Carrier extends Business {
 }
 
 /**
- * An Coyote is a type of participant in the network
+ * A Broker is a type of participant in the network
  */
-participant Coyote extends Business {
+participant Broker extends Business {
 }
 
+
 /**
- * JUST FOR INITIALIZING A DEMO
+ * A Factility is a type of participant in the network
  */
-transaction SetupDemo {
+participant  Facility identified by email {
+  o String email
+  o String location
 }
 
 /**
@@ -148,9 +177,28 @@ event TemperatureThresholdEvent {
 }
 
 /**
- * An event - when the ship arrives at the port
+ * An event - when the ship updates its location
  */
 event ShipmentInPortEvent {
   o String message
+  --> Shipment shipment
+}
+
+
+/**
+ * An event - when the shipment arrives at the destination
+ */
+event ShipmentHasArrived {
+  o String message
+  o Double shipmentAmount
+  o Double penalty  
+  --> Shipment shipment
+}
+
+/**
+ * An event - when the shipment arrives at the destination
+ */
+event ShipmentAcceptedError {
+  o String message   
   --> Shipment shipment
 }
