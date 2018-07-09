@@ -1,6 +1,21 @@
 /**
  * Sample access control list.
  */
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
 
 rule SystemACL {
   description:  "System ACL to permit all access"
@@ -36,8 +51,6 @@ rule Customer_Profile_New {
   action: ALLOW
 }
 
-
-
 rule ShipmentCreateAccessToCustomer {
   description: "Customer only can create Shipment"
   participant: "org.acme.shipping.perishable.Customer"
@@ -54,26 +67,34 @@ rule ShipmentUpdateAccessToCarrier {
   action: ALLOW
 }
 
-rule Shipment_Received {
-  description: "Carrier can only do the Shipment Accepted"
-  participant: "org.acme.shipping.perishable.Carrier"
+rule Customer_Shipment_Received {
+  description: "Customer can only do the Shipment Accepted"
+  participant: "org.acme.shipping.perishable.Customer"
   operation: ALL
   resource: "org.acme.shipping.perishable.ShipmentReceived"
   action: ALLOW
 }
 
-rule NetworkAdminUser {
-    description: "Grant business network administrators full access to user resources"
-    participant: "org.hyperledger.composer.system.NetworkAdmin"
-    operation: ALL
-    resource: "**"
-    action: ALLOW
+rule Carrier_Shipment_Accepted {
+  description: "Carrier can only do the Shipment Accepted"
+  participant: "org.acme.shipping.perishable.Carrier"
+  operation: ALL
+  resource: "org.acme.shipping.perishable.ShipmentAccepted"
+  action: ALLOW
 }
 
-rule NetworkAdminSystem {
-    description: "Grant business network administrators full access to system resources"
-    participant: "org.hyperledger.composer.system.NetworkAdmin"
-    operation: ALL
-    resource: "org.hyperledger.composer.system.**"
-    action: ALLOW
+rule Carrier_Temperature_All {
+  description: "Carrier can only do the Shipment Accepted"
+  participant: "org.acme.shipping.perishable.Carrier"
+  operation: ALL
+  resource: "org.acme.shipping.perishable.TemperatureReading"
+  action: ALLOW
+}
+
+rule Carrier_GPS_All {
+  description: "Carrier can only do the Shipment Accepted"
+  participant: "org.acme.shipping.perishable.Carrier"
+  operation: ALL
+  resource: "org.acme.shipping.perishable.GpsReading"
+  action: ALLOW
 }
