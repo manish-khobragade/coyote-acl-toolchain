@@ -1,20 +1,58 @@
-query FILTER_CUSTOMER_PARTICIPANT {
-  description: "Select all customers having balance more than $100."
+/** Sample queries for Blockchain Demo Network
+*/
+
+query filterCustomerParticipant {
+  description: "Select all customers having balance more than amount specified."
   statement:
-      SELECT org.acme.shipping.perishable.Customer
-          WHERE (accountBalance > 100)
+      SELECT org.coyote.playground.blockchain.demo.Customer
+          WHERE (accountBalance > _$amount)
 }
 
-query FILTER_TEMPERATURE_TRANSACTION {
+query filterTemperatureTransaction {
   description: "Select all temperature transactions having temperature more than a specific value."
   statement:
-      SELECT org.acme.shipping.perishable.TemperatureReading
+      SELECT org.coyote.playground.blockchain.demo.TemperatureReading
           WHERE (centigrade > _$temperature)
 }
 
-query FILTER_SHIPMENT_ASSET {
+query filterShipmentAsset {
   description: "Select all shipments having a specific status."
   statement:
-    SELECT org.acme.shipping.perishable.Shipment
+    SELECT org.coyote.playground.blockchain.demo.Shipment
       WHERE (status == _$status )
+}
+
+query temperatureReadingByShipment {
+  description: "Select all temperature readings for Shipment."
+  statement:
+    SELECT org.coyote.playground.blockchain.demo.TemperatureReading
+    WHERE (shipment == _$shipment)      
+}
+
+query gpsReadingByShipment {
+  description: "Select all gps readings for Shipment."
+  statement:
+    SELECT org.coyote.playground.blockchain.demo.GpsReading
+    WHERE (shipment == _$shipment)      
+}
+
+query pickUpByShipment {
+  description: "Select pickup transaction for Shipment"
+  statement:
+    SELECT org.coyote.playground.blockchain.demo.ShipmentPickedUp
+    WHERE (shipment == _$shipment)      
+}
+
+query deliveryByShipment {
+  description: "Select delivery transaction for Shipment."
+  statement:
+    SELECT org.coyote.playground.blockchain.demo.ShipmentReceived
+    WHERE (shipment == _$shipment)      
+}
+
+query acceptedByShipment {
+  description: "Select all temperature readings for temperature."
+  statement:
+    SELECT org.coyote.playground.blockchain.demo.ShipmentReceived
+    WHERE (shipment == _$shipment)      
 }

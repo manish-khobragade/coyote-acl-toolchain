@@ -12,63 +12,71 @@
  * limitations under the License.
  */
 
+
+String.prototype.toDateFromDatetime = function () {
+    var parts = this.split(/[- :]/);
+    return new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]);
+};
+
 /**
  * A shipment has been received by the customer
- * @param {org.acme.shipping.perishable.ShipmentReceived} shipmentReceived - the ShipmentReceived transaction
+ * @param {org.coyote.playground.blockchain.demo.ShipmentReceived} shipmentReceived - the ShipmentReceived transaction
  * @transaction
  */
-function payOut(shipmentReceived) {
+function shipmentDelivered(shipmentReceived) {
     var contract = shipmentReceived.shipment.contract;
     var shipment = shipmentReceived.shipment;
     var payOut = contract.unitPrice * shipment.unitCount;
     var shipmentAmount = payOut;
     var penalty = 0;
-    var NS = 'org.acme.shipping.perishable';
-    //console.log('Received at: ' + shipmentReceived.timestamp);
-    //console.log('Contract arrivalDateTime: ' + contract.arrivalDateTime);
-
+    var NS = 'org.coyote.playground.blockchain.demo';
+    var deliveryTimeActual = shipmentReceived.actualDeliveredTime;
     // set the status of the shipment
-    shipment.status = 'ARRIVED';
+    shipment.status = 'DELIVERED';
 
 
-    // find the lowest temperature reading
+    // calculate penalty for temperature violation
     if (shipment.temperatureReadings) {
-        // sort the temperatureReadings by centigrade
-        shipment.temperatureReadings.sort(function (a, b) {
-            return (a.centigrade - b.centigrade);
-        });
-        var lowestReading = shipment.temperatureReadings[0];
-        var highestReading = shipment.temperatureReadings[shipment.temperatureReadings.length - 1];
 
-        //console.log('Lowest temp reading: ' + lowestReading.centigrade);
-        //console.log('Highest temp reading: ' + highestReading.centigrade);
-
-        // does the lowest temperature violate the contract?
-        if (lowestReading.centigrade < contract.minTemperature) {
-            penalty += (contract.minTemperature - lowestReading.centigrade) * contract.minPenaltyFactor;
-            //console.log('Min temp penalty: ' + penalty);
+        var minimumTempViolationCount = shipment.temperatureReadings.filter(reading => reading < contract.minTemperature).length;
+        var maxTempViolationCount = shipment.temperatureReadings.filter(reading => reading < contract.maxTemperature).length;
+        console.log('Min Temp Count' + minimumTempViolationCount);
+        console.log('Max Temp Count' + maxTempViolationCount);
+        if (minimumTempViolationCount > 0) {
+            penalty += (minimumTempViolationCount * contract.minTempViolationPenalty);
+            console.log('Min Penalty : ' + minimumTempViolationCount * contract.minTempViolationPenalty);
         }
 
-        // does the highest temperature violate the contract?
-        if (highestReading.centigrade > contract.maxTemperature) {
-            penalty += (highestReading.centigrade - contract.maxTemperature) * contract.maxPenaltyFactor;
-            //console.log('Max temp penalty: ' + penalty);
-        }
-
-        // apply any penalities
-        payOut -= (penalty * shipment.unitCount);
-
-        if (payOut < 0) {
-            payOut = 0;
+        if (maxTempViolationCount > 0) {
+            penalty += (maxTempViolationCount * contract.maxTempViolationPenalty);
+            console.log('Max Penalty : ' + maxTempViolationCount * contract.maxTempViolationPenalty);
         }
     }
 
-    //console.log('Payout: ' + payOut);
-    if (payOut > 0) {
-        contract.customer.accountBalance -= payOut;
-        contract.broker.accountBalance += ((payOut * contract.brokerMargin) / 100);
-        contract.carrier.accountBalance += (payOut - ((payOut * contract.brokerMargin) / 100));
+    // calculate penalty for late arrivals
+    if (shipment.loadStops) {
+        var loadStopPickup = shipment.loadStops.filter(ls => ls.stopType == "PICKUP")[0];
+        var appointmentTimePickup = loadStopPickup.appointmentTime.toDateFromDatetime();
+        var actualTimePickup = loadStopPickup.actualTime.toDateFromDatetime();
+        if (appointmentTimePickup < actualTimePickup) {
+            penalty += contract.pickupLateFee;
+        }
+
+        var loadStopDelivery = shipment.loadStops.filter(ls => ls.stopType == "DELIVERY")[0];
+        var index = shipment.loadStops.indexOf(loadStopDelivery);
+        var appointmentTimeDelivery = loadStopDelivery.appointmentTime.toDateFromDatetime();
+        var actualTimeDelivery = deliveryTimeActual.toDateFromDatetime();
+        shipment.loadStops[index].actualTime = deliveryTimeActual;
+        if (appointmentTimeDelivery < actualTimeDelivery) {
+            penalty += contract.deliveryLateFee;
+        }
     }
+
+    payOut -= penalty;
+    contract.customer.accountBalance -= payOut;
+    contract.broker.accountBalance += ((payOut * contract.brokerMargin) / 100);
+    contract.carrier.accountBalance += (payOut - ((payOut * contract.brokerMargin) / 100));
+
     var factory = getFactory();
     var shipmentArrived = factory.newEvent(NS, 'ShipmentHasArrived');
     shipmentArrived.shipment = shipment;
@@ -78,49 +86,49 @@ function payOut(shipmentReceived) {
     shipmentArrived.message = message;
     emit(shipmentArrived);
 
-    return getParticipantRegistry('org.acme.shipping.perishable.Customer')
+    return getParticipantRegistry('org.coyote.playground.blockchain.demo.Customer')
         .then(function (customerRegistry) {
             // update the customer's balance
 
             return customerRegistry.update(contract.customer);
         })
         .then(function () {
-            return getParticipantRegistry('org.acme.shipping.perishable.Broker');
+            return getParticipantRegistry('org.coyote.playground.blockchain.demo.Broker');
         })
         .then(function (brokerRegistry) {
             // update the broker's balance
             return brokerRegistry.update(contract.broker);
         })
         .then(function () {
-            return getParticipantRegistry('org.acme.shipping.perishable.Carrier');
+            return getParticipantRegistry('org.coyote.playground.blockchain.demo.Carrier');
         })
         .then(function (carrierRegistry) {
             // update the carrier's balance
             return carrierRegistry.update(contract.carrier);
         })
         .then(function () {
-            return getAssetRegistry('org.acme.shipping.perishable.Shipment');
+            return getAssetRegistry('org.coyote.playground.blockchain.demo.Shipment');
         })
         .then(function (shipmentRegistry) {
             // update the state of the shipment
             return shipmentRegistry.update(shipment);
         });
- 
+
 }
+
+
 
 /**
  * A temperature reading has been received for a shipment
- * @param {org.acme.shipping.perishable.TemperatureReading} temperatureReading - the TemperatureReading transaction
+ * @param {org.coyote.playground.blockchain.demo.TemperatureReading} temperatureReading - the TemperatureReading transaction
  * @transaction
  */
 function temperatureReading(temperatureReading) {
 
     var shipment = temperatureReading.shipment;
-    var NS = 'org.acme.shipping.perishable';
-    var contract = shipment.contract;
+    var NS = 'org.coyote.playground.blockchain.demo';
+    var contract = shipment.contract;    
     var factory = getFactory();
-
-    //console.log('Adding temperature ' + temperatureReading.centigrade + ' to shipment ' + shipment.$identifier);
 
     if (shipment.temperatureReadings) {
         shipment.temperatureReadings.push(temperatureReading);
@@ -128,32 +136,32 @@ function temperatureReading(temperatureReading) {
         shipment.temperatureReadings = [temperatureReading];
     }
 
-    if (temperatureReading.centigrade < contract.minTemperature ||
+    if (centigrade < contract.minTemperature ||
         temperatureReading.centigrade > contract.maxTemperature) {
+        var violationType = temperatureReading.centigrade < contract.minTemperature ? 'Minimum Temperature Violation' : 'Maximum Temperature Violation';
         var temperatureEvent = factory.newEvent(NS, 'TemperatureThresholdEvent');
         temperatureEvent.shipment = shipment;
         temperatureEvent.temperature = temperatureReading.centigrade;
+        temperatureEvent.temperatureViolationType = violationType;
         temperatureEvent.message = 'Temperature threshold violated! Emitting TemperatureEvent for shipment: ' + shipment.$identifier;
-        //console.log(temperatureEvent.message);
         emit(temperatureEvent);
     }
-
+    
     return getAssetRegistry(NS + '.Shipment')
         .then(function (shipmentRegistry) {
-            // add the temp reading to the shipment
             return shipmentRegistry.update(shipment);
         });
 }
 
 /**
  * A GPS reading has been received for a shipment
- * @param {org.acme.shipping.perishable.GpsReading} gpsReading - the GpsReading transaction
+ * @param {org.coyote.playground.blockchain.demo.GpsReading} gpsReading - the GpsReading transaction
  * @transaction
  */
 function gpsReading(gpsReading) {
 
     var factory = getFactory();
-    var NS = "org.acme.shipping.perishable";
+    var NS = "org.coyote.playground.blockchain.demo";
     var shipment = gpsReading.shipment;
 
 
@@ -163,7 +171,7 @@ function gpsReading(gpsReading) {
         shipment.gpsReadings = [gpsReading];
     }
 
-    var latLong = '/LAT:' + gpsReading.latitude + gpsReading.latitudeDir + '/LONG:' +
+    var latLong = 'LAT:' + gpsReading.latitude + gpsReading.latitudeDir + ' LONG:' +
         gpsReading.longitude + gpsReading.longitudeDir;
 
 
@@ -172,7 +180,6 @@ function gpsReading(gpsReading) {
     var message = 'Shipment has reached at ' + latLong;
     shipmentInPortEvent.message = message;
     emit(shipmentInPortEvent);
-
 
     return getAssetRegistry(NS + '.Shipment')
         .then(function (shipmentRegistry) {
@@ -184,12 +191,12 @@ function gpsReading(gpsReading) {
 
 /**
  * A shipment has been created and now it will be accepted by carrier
- * @param {org.acme.shipping.perishable.ShipmentAccepted} shipmentAccepted - the ShipmentAccepted transaction
+ * @param {org.coyote.playground.blockchain.demo.ShipmentAccepted} shipmentAccepted - the ShipmentAccepted transaction
  * @transaction
  */
 function shipmentAccepted(shipmentAccepted) {
     var shipment = shipmentAccepted.shipment;
-    var NS = 'org.acme.shipping.perishable';
+    var NS = 'org.coyote.playground.blockchain.demo';
     if (shipment.status == "CREATED") {
         shipment.status = "ACCEPTED";
         var shipmentRegistry = getAssetRegistry(NS + '.Shipment')
@@ -199,12 +206,37 @@ function shipmentAccepted(shipmentAccepted) {
             });
 
     } else {
-        var factory = getFactory();
-        var shipmentAcceptedError = factory.newEvent(NS, 'ShipmentAcceptedError');
-        shipmentAcceptedError.shipment = shipment;
-        var message = 'Shipment has already passed accepted state';
-        shipmentAcceptedError.message = message;
-        emit(shipmentAcceptedError);
         return "Shipment cannot be set to accepted";
+    }
+}
+
+
+/**
+ * A shipment has been picked up by Carrrier
+ * @param {org.coyote.playground.blockchain.demo.ShipmentPickedUp} shipmentPicked - the Shipment Picked Up transaction
+ * @transaction
+ */
+function shipmentPickedUp(shipmentPicked) {
+    var shipment = shipmentPicked.shipment;
+    var pickUpTime = shipmentPicked.actualPickupTime
+    var NS = 'org.coyote.playground.blockchain.demo';
+    shipment.status = "PICKEDUP";
+    if (shipment.loadStops) {
+        var loadStopPickup = shipment.loadStops.filter(ls => ls.stopType == "PICKUP")[0];
+        if (loadStopPickup != null) {
+            var index = shipment.loadStops.indexOf(loadStopPickup);
+            shipment.loadStops[index].actualTime = pickUpTime;
+            var shipmentRegistry = getAssetRegistry(NS + '.Shipment')
+                .then(function (shipmentRegistry) {
+                    // add the accepted state to the shipment
+                    return shipmentRegistry.update(shipment);
+                });
+        }
+        else {
+            return "Pick Up not defined";
+        }
+    }
+    else {
+        return "Load Stops not defined";
     }
 }
