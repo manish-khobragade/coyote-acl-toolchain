@@ -52,8 +52,8 @@ rule Customer_Contract {
   action: ALLOW
 }
 
-rule Customer_Shipment_Access {
-  description: ""
+rule Customer_Shipment {
+  description: "Customer has full access on associated Shipment"
   participant(c): "org.coyote.playground.blockchain.demo.Customer"
   operation: ALL
   resource(s): "org.coyote.playground.blockchain.demo.Shipment"
@@ -61,8 +61,8 @@ rule Customer_Shipment_Access {
   action: ALLOW
 }
 
-rule Carrier_Shipment_Access {
-  description: ""
+rule Carrier_Shipment {
+  description: "Carrier has full access on associated Shipment"
   participant(c): "org.coyote.playground.blockchain.demo.Carrier"
   operation: ALL
   resource(s): "org.coyote.playground.blockchain.demo.Shipment"
@@ -105,15 +105,23 @@ rule Customer_Carrier_Update {
 }
 
 rule Customer_Shipment_Received {
-  description: "Customer can only do the Shipment Accepted"
+  description: "Customer has full access on ShipmentReceived transaction"
   participant: "org.coyote.playground.blockchain.demo.Customer"
   operation: ALL
   resource: "org.coyote.playground.blockchain.demo.ShipmentReceived"
   action: ALLOW
 }
 
+rule Customer_Shipment_PickedUp {
+  description: "Customer has full access on ShipmentPickedUp transaction"
+  participant: "org.coyote.playground.blockchain.demo.Customer"
+  operation: ALL
+  resource: "org.coyote.playground.blockchain.demo.ShipmentPickedUp"
+  action: ALLOW
+}
+
 rule Carrier_Shipment_Accepted {
-  description: "Carrier can only do the Shipment Accepted"
+  description: "Carrier has full access on ShipmentAccepted transaction"
   participant: "org.coyote.playground.blockchain.demo.Carrier"
   operation: ALL
   resource: "org.coyote.playground.blockchain.demo.ShipmentAccepted"
@@ -121,7 +129,7 @@ rule Carrier_Shipment_Accepted {
 }
 
 rule Carrier_Temperature_All {
-  description: "Carrier can only do the Shipment Accepted"
+  description: "Carrier has full access on TemperatureReading transaction"
   participant: "org.coyote.playground.blockchain.demo.Carrier"
   operation: ALL
   resource: "org.coyote.playground.blockchain.demo.TemperatureReading"
@@ -129,7 +137,7 @@ rule Carrier_Temperature_All {
 }
 
 rule Carrier_GPS_All {
-  description: "Carrier can only do the Shipment Accepted"
+  description: "Carrier has full access on GpsReading transaction"
   participant: "org.coyote.playground.blockchain.demo.Carrier"
   operation: ALL
   resource: "org.coyote.playground.blockchain.demo.GpsReading"

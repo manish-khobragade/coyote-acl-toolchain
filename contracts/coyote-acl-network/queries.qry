@@ -37,7 +37,7 @@ query gpsReadingByShipment {
 }
 
 query pickUpByShipment {
-  description: "Select pickup transaction for Shipment"
+  description: "Select pickup transaction for Shipment."
   statement:
     SELECT org.coyote.playground.blockchain.demo.ShipmentPickedUp
     WHERE (shipment == _$shipment)      
@@ -51,8 +51,8 @@ query deliveryByShipment {
 }
 
 query acceptedByShipment {
-  description: "Select all temperature readings for temperature."
+  description: "Select accepted transaction for temperature."
   statement:
-    SELECT org.coyote.playground.blockchain.demo.ShipmentReceived
+    SELECT org.coyote.playground.blockchain.demo.ShipmentAccepted
     WHERE (shipment == _$shipment)      
 }

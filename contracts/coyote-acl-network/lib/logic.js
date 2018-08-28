@@ -136,7 +136,7 @@ function temperatureReading(temperatureReading) {
         shipment.temperatureReadings = [temperatureReading];
     }
 
-    if (centigrade < contract.minTemperature ||
+    if (temperatureReading.centigrade < contract.minTemperature ||
         temperatureReading.centigrade > contract.maxTemperature) {
         var violationType = temperatureReading.centigrade < contract.minTemperature ? 'Minimum Temperature Violation' : 'Maximum Temperature Violation';
         var temperatureEvent = factory.newEvent(NS, 'TemperatureThresholdEvent');
