@@ -37,9 +37,8 @@ function shipmentDelivered(shipmentReceived) {
 
     // calculate penalty for temperature violation
     if (shipment.temperatureReadings) {
-
-        var minimumTempViolationCount = shipment.temperatureReadings.filter(reading => reading < contract.minTemperature).length;
-        var maxTempViolationCount = shipment.temperatureReadings.filter(reading => reading < contract.maxTemperature).length;
+        var minimumTempViolationCount = shipment.temperatureReadings.filter(function (reading) { return reading < contract.minTemperature; }).length;
+        var maxTempViolationCount = shipment.temperatureReadings.filter(function (reading) { return reading > contract.maxTemperature; }).length;
         console.log('Min Temp Count' + minimumTempViolationCount);
         console.log('Max Temp Count' + maxTempViolationCount);
         if (minimumTempViolationCount > 0) {
@@ -127,7 +126,7 @@ function temperatureReading(temperatureReading) {
 
     var shipment = temperatureReading.shipment;
     var NS = 'org.coyote.playground.blockchain.demo';
-    var contract = shipment.contract;    
+    var contract = shipment.contract;
     var factory = getFactory();
 
     if (shipment.temperatureReadings) {
@@ -146,7 +145,7 @@ function temperatureReading(temperatureReading) {
         temperatureEvent.message = 'Temperature threshold violated! Emitting TemperatureEvent for shipment: ' + shipment.$identifier;
         emit(temperatureEvent);
     }
-    
+
     return getAssetRegistry(NS + '.Shipment')
         .then(function (shipmentRegistry) {
             return shipmentRegistry.update(shipment);
