@@ -54,14 +54,14 @@ function shipmentDelivered(shipmentReceived) {
 
     // calculate penalty for late arrivals
     if (shipment.loadStops) {
-        var loadStopPickup = shipment.loadStops.filter(ls => ls.stopType == "PICKUP")[0];
+        var loadStopPickup = shipment.loadStops.filter(function (ls) { return ls.stopType == "PICKUP"})[0];
         var appointmentTimePickup = loadStopPickup.appointmentTime.toDateFromDatetime();
         var actualTimePickup = loadStopPickup.actualTime.toDateFromDatetime();
         if (appointmentTimePickup < actualTimePickup) {
             penalty += contract.pickupLateFee;
         }
-
-        var loadStopDelivery = shipment.loadStops.filter(ls => ls.stopType == "DELIVERY")[0];
+    
+        var loadStopDelivery = shipment.loadStops.filter(function (ls) { return ls.stopType == "DELIVERY"})[0];
         var index = shipment.loadStops.indexOf(loadStopDelivery);
         var appointmentTimeDelivery = loadStopDelivery.appointmentTime.toDateFromDatetime();
         var actualTimeDelivery = deliveryTimeActual.toDateFromDatetime();
