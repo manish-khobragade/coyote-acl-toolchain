@@ -220,8 +220,8 @@ function shipmentPickedUp(shipmentPicked) {
     var pickUpTime = shipmentPicked.actualPickupTime
     var NS = 'org.coyote.playground.blockchain.demo';
     shipment.status = "PICKEDUP";
-    if (shipment.loadStops) {
-        var loadStopPickup = shipment.loadStops.filter(ls => ls.stopType == "PICKUP")[0];
+    if (shipment.loadStops) {       
+        var loadStopPickup = shipment.loadStops.filter(function (ls) { return ls.stopType == "PICKUP"})[0];
         if (loadStopPickup != null) {
             var index = shipment.loadStops.indexOf(loadStopPickup);
             shipment.loadStops[index].actualTime = pickUpTime;
