@@ -196,8 +196,8 @@ function gpsReading(gpsReading) {
 function shipmentAccepted(shipmentAccepted) {
     var shipment = shipmentAccepted.shipment;
     var NS = 'org.coyote.playground.blockchain.demo';
-    if (shipment.status == "CREATED") {
-        shipment.status = "ACCEPTED";
+    if (shipment.status == 'CREATED') {
+        shipment.status = 'ACCEPTED';
         var shipmentRegistry = getAssetRegistry(NS + '.Shipment')
             .then(function (shipmentRegistry) {
                 // add the accepted state to the shipment
@@ -205,7 +205,7 @@ function shipmentAccepted(shipmentAccepted) {
             });
 
     } else {
-        return "Shipment cannot be set to accepted";
+        return 'Shipment cannot be set to accepted';
     }
 }
 
@@ -219,9 +219,9 @@ function shipmentPickedUp(shipmentPicked) {
     var shipment = shipmentPicked.shipment;
     var pickUpTime = shipmentPicked.actualPickupTime
     var NS = 'org.coyote.playground.blockchain.demo';
-    shipment.status = "PICKEDUP";
+    shipment.status = 'PICKEDUP';
     if (shipment.loadStops) {       
-        var loadStopPickup = shipment.loadStops.filter(function (ls) { return ls.stopType == "PICKUP"})[0];
+        var loadStopPickup = shipment.loadStops.filter(function (ls) { return ls.stopType == 'PICKUP'})[0];
         if (loadStopPickup != null) {
             var index = shipment.loadStops.indexOf(loadStopPickup);
             shipment.loadStops[index].actualTime = pickUpTime;
@@ -232,10 +232,10 @@ function shipmentPickedUp(shipmentPicked) {
                 });
         }
         else {
-            return "Pick Up not defined";
+            return 'Pick Up not defined';
         }
     }
     else {
-        return "Load Stops not defined";
+        return 'Load Stops not defined';
     }
 }
