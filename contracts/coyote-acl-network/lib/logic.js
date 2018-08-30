@@ -54,14 +54,14 @@ function shipmentDelivered(shipmentReceived) {
 
     // calculate penalty for late arrivals
     if (shipment.loadStops) {
-        var loadStopPickup = shipment.loadStops.filter(function (ls) { return ls.stopType == "PICKUP"})[0];
+        var loadStopPickup = shipment.loadStops.filter(function (ls) { return ls.stopType === "PICKUP" })[0];
         var appointmentTimePickup = loadStopPickup.appointmentTime.toDateFromDatetime();
         var actualTimePickup = loadStopPickup.actualTime.toDateFromDatetime();
         if (appointmentTimePickup < actualTimePickup) {
             penalty += contract.pickupLateFee;
         }
-    
-        var loadStopDelivery = shipment.loadStops.filter(function (ls) { return ls.stopType == "DELIVERY"})[0];
+
+        var loadStopDelivery = shipment.loadStops.filter(function (ls) { return ls.stopType === "DELIVERY" })[0];
         var index = shipment.loadStops.indexOf(loadStopDelivery);
         var appointmentTimeDelivery = loadStopDelivery.appointmentTime.toDateFromDatetime();
         var actualTimeDelivery = deliveryTimeActual.toDateFromDatetime();
@@ -196,17 +196,14 @@ function gpsReading(gpsReading) {
 function shipmentAccepted(shipmentAccepted) {
     var shipment = shipmentAccepted.shipment;
     var NS = 'org.coyote.playground.blockchain.demo';
-    if (shipment.status == 'CREATED') {
-        shipment.status = 'ACCEPTED';
-        var shipmentRegistry = getAssetRegistry(NS + '.Shipment')
-            .then(function (shipmentRegistry) {
-                // add the accepted state to the shipment
-                return shipmentRegistry.update(shipment);
-            });
+    
+    shipment.status = 'ACCEPTED';
+    var shipmentRegistry = getAssetRegistry(NS + '.Shipment')
+        .then(function (shipmentRegistry) {
+            // add the accepted state to the shipment
+            return shipmentRegistry.update(shipment);
+        });
 
-    } else {
-        return 'Shipment cannot be set to accepted';
-    }
 }
 
 
@@ -220,8 +217,8 @@ function shipmentPickedUp(shipmentPicked) {
     var pickUpTime = shipmentPicked.actualPickupTime
     var NS = 'org.coyote.playground.blockchain.demo';
     shipment.status = 'PICKEDUP';
-    if (shipment.loadStops) {       
-        var loadStopPickup = shipment.loadStops.filter(function (ls) { return ls.stopType == 'PICKUP'})[0];
+    if (shipment.loadStops) {
+        var loadStopPickup = shipment.loadStops.filter(function (ls) { return ls.stopType === 'PICKUP' })[0];
         if (loadStopPickup != null) {
             var index = shipment.loadStops.indexOf(loadStopPickup);
             shipment.loadStops[index].actualTime = pickUpTime;
