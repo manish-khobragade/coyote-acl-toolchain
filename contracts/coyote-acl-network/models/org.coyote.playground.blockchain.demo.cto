@@ -69,6 +69,14 @@ concept LoadStop{
 }
 
 /**
+ * Concept for Penalty
+ */
+concept Penalty{
+  o String penaltyType
+  o Double amount
+}
+
+/**
  * An abstract transaction that is related to a Shipment
  */
 abstract transaction ShipmentTransaction {
@@ -133,7 +141,9 @@ asset Shipment identified by shipmentId {
   o TemperatureReading[] temperatureReadings optional
   o GpsReading[] gpsReadings optional
   o LoadStop[] loadStops
-
+  o Long totalAmount optional
+  o Long totalPenalty optional
+  o Penalty[] penalties optional
 }
 
 /**
@@ -222,5 +232,13 @@ event ShipmentHasArrived {
   o String message
   o Double shipmentAmount
   o Double penalty  
+  --> Shipment shipment
+}
+
+/**
+ * An event - when the shipment arrives at the destination
+ */
+event ShipmentLatePickup {
+  o String message
   --> Shipment shipment
 }

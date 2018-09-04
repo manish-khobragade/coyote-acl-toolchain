@@ -36,6 +36,38 @@ rule SystemACL {
   action: ALLOW
 }
 
+rule Customer_GPS_ReadOnly {
+  description: "Carrier has read only access on GpsReading transaction"
+  participant: "org.coyote.playground.blockchain.demo.Customer"
+  operation: READ
+  resource: "org.coyote.playground.blockchain.demo.GpsReading"
+  action: ALLOW
+}
+
+rule Carrier_Customer_ReadOnly {
+  description: "Carrier has read only access on Carrier"
+  participant: "org.coyote.playground.blockchain.demo.Carrier"
+  operation: READ
+  resource: "org.coyote.playground.blockchain.demo.Customer"
+  action: ALLOW
+}
+
+rule Carrier_Broker_ReadOnly {
+  description: "Carrier has read only access on Broker"
+  participant: "org.coyote.playground.blockchain.demo.Carrier"
+  operation: READ
+  resource: "org.coyote.playground.blockchain.demo.Broker"
+  action: ALLOW
+}
+
+rule Carrier_Facility {
+  description: "Carrier has full access on Facility"
+  participant: "org.coyote.playground.blockchain.demo.Carrier"
+  operation: ALL
+  resource: "org.coyote.playground.blockchain.demo.Facility"
+  action: ALLOW
+}
+
 rule Carrier_Contract {
   description: "Carrier has read access on Contract"
   participant: "org.coyote.playground.blockchain.demo.Carrier"
@@ -44,20 +76,20 @@ rule Carrier_Contract {
   action: ALLOW
 }
 
-rule Customer_Contract {
-  description: "Customer has read access on Contract"
+rule Customer_Facility {
+  description: "Customer has all access on Facility"
   participant: "org.coyote.playground.blockchain.demo.Customer"
-  operation: READ
-  resource: "org.coyote.playground.blockchain.demo.Contract"
+  operation: ALL
+  resource: "org.coyote.playground.blockchain.demo.Facility"
   action: ALLOW
 }
 
-rule Customer_Shipment {
-  description: "Customer has full access on associated Shipment"
-  participant(c): "org.coyote.playground.blockchain.demo.Customer"
-  operation: ALL
-  resource(s): "org.coyote.playground.blockchain.demo.Shipment"
-  condition: (s.contract.customer.getIdentifier() == c.getIdentifier())
+rule Carrier_Profile {
+  description: "Carrier can read and update their own record only"
+  participant(t): "org.coyote.playground.blockchain.demo.Carrier"
+  operation: READ, UPDATE
+  resource(v): "org.coyote.playground.blockchain.demo.Carrier"
+  condition: (v.getIdentifier() == t.getIdentifier())
   action: ALLOW
 }
 
@@ -70,12 +102,11 @@ rule Carrier_Shipment {
   action: ALLOW
 }
 
-rule Carrier_Profile {
-  description: "Carrier can read and update their own record only"
-  participant(t): "org.coyote.playground.blockchain.demo.Carrier"
-  operation: READ, UPDATE
-  resource(v): "org.coyote.playground.blockchain.demo.Carrier"
-  condition: (v.getIdentifier() == t.getIdentifier())
+rule Customer_Contract {
+  description: "Customer has read access on Contract"
+  participant: "org.coyote.playground.blockchain.demo.Customer"
+  operation: READ
+  resource: "org.coyote.playground.blockchain.demo.Contract"
   action: ALLOW
 }
 
@@ -104,11 +135,20 @@ rule Customer_Carrier_Update {
   action: ALLOW
 }
 
-rule Customer_Shipment_Received {
-  description: "Customer has full access on ShipmentReceived transaction"
-  participant: "org.coyote.playground.blockchain.demo.Customer"
+rule Customer_Shipment {
+  description: "Customer has full access on associated Shipment"
+  participant(c): "org.coyote.playground.blockchain.demo.Customer"
   operation: ALL
-  resource: "org.coyote.playground.blockchain.demo.ShipmentReceived"
+  resource(s): "org.coyote.playground.blockchain.demo.Shipment"
+  condition: (s.contract.customer.getIdentifier() == c.getIdentifier())
+  action: ALLOW
+}
+
+rule Carrier_Shipment_Accepted {
+  description: "Carrier has full access on ShipmentAccepted transaction"
+  participant: "org.coyote.playground.blockchain.demo.Carrier"
+  operation: ALL
+  resource: "org.coyote.playground.blockchain.demo.ShipmentAccepted"
   action: ALLOW
 }
 
@@ -120,10 +160,36 @@ rule Customer_Shipment_PickedUp {
   action: ALLOW
 }
 
-rule Carrier_Shipment_Accepted {
-  description: "Carrier has full access on ShipmentAccepted transaction"
-  participant: "org.coyote.playground.blockchain.demo.Carrier"
+rule Customer_Shipment_Received {
+  description: "Customer has full access on ShipmentReceived transaction"
+  participant: "org.coyote.playground.blockchain.demo.Customer"
   operation: ALL
+  resource: "org.coyote.playground.blockchain.demo.ShipmentReceived"
+  action: ALLOW
+}
+
+rule Carrier_Shipment_Received_ReadOnly {
+  description: "Carrier has read only access on ShipmentReceived transaction"
+  participant: "org.coyote.playground.blockchain.demo.Carrier"
+  operation: READ
+  resource: "org.coyote.playground.blockchain.demo.ShipmentReceived"
+  action: ALLOW
+}
+
+rule Carrier_Shipment_PickedUp_ReadOnly {
+  description: "Carrier has full access on ShipmentPickedUp transaction"
+  participant: "org.coyote.playground.blockchain.demo.Carrier"
+  operation: READ
+  resource: "org.coyote.playground.blockchain.demo.ShipmentPickedUp"
+  action: ALLOW
+}
+
+
+
+rule Customer_Shipment_Accepted_ReadOnly {
+  description: "Customer has read only access on ShipmentAccepted transaction"
+  participant: "org.coyote.playground.blockchain.demo.Customer"
+  operation: READ
   resource: "org.coyote.playground.blockchain.demo.ShipmentAccepted"
   action: ALLOW
 }
@@ -136,6 +202,14 @@ rule Carrier_Temperature_All {
   action: ALLOW
 }
 
+rule Customer_Temperature_ReadOnly {
+  description: "Customer has full access on TemperatureReading transaction"
+  participant: "org.coyote.playground.blockchain.demo.Customer"
+  operation: READ
+  resource: "org.coyote.playground.blockchain.demo.TemperatureReading"
+  action: ALLOW
+}
+
 rule Carrier_GPS_All {
   description: "Carrier has full access on GpsReading transaction"
   participant: "org.coyote.playground.blockchain.demo.Carrier"
@@ -143,6 +217,11 @@ rule Carrier_GPS_All {
   resource: "org.coyote.playground.blockchain.demo.GpsReading"
   action: ALLOW
 }
+
+
+
+
+
 
 
 

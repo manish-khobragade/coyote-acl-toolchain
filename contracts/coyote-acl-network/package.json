@@ -3,7 +3,7 @@
     "composer": "^0.15.0"
   },
   "name": "coyote-acl-network",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "description": "Coyote Playgorund Blockchain Demo",
   "networkImage": "https://github.com/makotogo/developerWorks/coyote-acl-network/networkimage.svg",
   "networkImageanimated": "https://github.com/makotogo/developerWorks/coyote-acl-network/networkimageanimated.svg",
